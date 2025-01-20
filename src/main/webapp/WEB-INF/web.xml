@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee        http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+   <display-name>4-database</display-name>
+   <welcome-file-list>
+      <welcome-file>fileupload.jsp</welcome-file>
+   </welcome-file-list>
+
+   <listener>
+      <listener-class>com.ivanledakovich.servlets.AppServletContextListener</listener-class>
+   </listener>
+
+   <error-page>
+      <error-code>404</error-code>
+      <location>/Exception</location>
+   </error-page>
+
+   <error-page>
+      <exception-type>javax.servlet.ServletException</exception-type>
+      <location>/Exception</location>
+   </error-page>
+
+   <error-page>
+      <exception-type>java.lang.Throwable</exception-type>
+      <location>/Exception</location>
+   </error-page>
+
+</web-app>
