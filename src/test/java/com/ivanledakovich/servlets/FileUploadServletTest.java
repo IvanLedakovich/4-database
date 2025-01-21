@@ -20,6 +20,8 @@ import java.io.StringWriter;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class FileUploadServletTest {
@@ -56,6 +58,8 @@ public class FileUploadServletTest {
         responseWriter = new StringWriter();
 
         when(servletConfig.getServletContext()).thenReturn(servletContext);
+        when(servletContext.getRealPath("")).thenReturn("/application/path");
+        when(servletConfig.getServletContext().getRealPath("")).thenReturn("/application/path");
         servlet.init(servletConfig);
     }
 
@@ -70,9 +74,8 @@ public class FileUploadServletTest {
         doNothing().when(part).write(anyString());
 
         when(response.getWriter()).thenReturn(new PrintWriter(responseWriter));
-
         when(request.getSession()).thenReturn(session);
-        when(request.getRequestDispatcher("/fileuploadResponse.jsp")).thenReturn(dispatcher);
+        when(request.getRequestDispatcher("/allfiles.jsp")).thenReturn(dispatcher);
 
         // when
         servlet.doPost(request, response);
