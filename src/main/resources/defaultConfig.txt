@@ -1,0 +1,2 @@
+saveLocation_0 = "D:\\Games"
+saveLocation_1 = "D:\\4-database"
