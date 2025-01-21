@@ -18,10 +18,6 @@ public class AppServletContextListener implements ServletContextListener {
     private static final Logger logger = Logger.getLogger(AppServletContextListener.class);
 
     @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-    }
-
-    @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         Properties properties = new Properties();
         try (InputStream configStream = getResourceAsStream("config.txt")) {
