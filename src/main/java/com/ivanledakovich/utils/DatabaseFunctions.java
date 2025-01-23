@@ -1,5 +1,6 @@
 package com.ivanledakovich.utils;
 
+import com.ivanledakovich.models.DatabaseBean;
 import com.ivanledakovich.models.FileModel;
 
 import java.io.File;
@@ -14,25 +15,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseFunctions {
-    public static Connection connect() throws SQLException {
-        try {
-            Class.forName("org.postgresql.Driver");
-            String jdbcUrl = System.getenv().get("POSTGRES_DB");
-            String username = System.getenv().get("POSTGRES_USER");
-            String password = System.getenv().get("POSTGRES_PASSWORD");
-            Connection con = DriverManager.getConnection(jdbcUrl, username, password);
-            return con;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
+    DatabaseBean databaseBean = new DatabaseBean();
+
+    public DatabaseFunctions(){
+        databaseBean.setUrl(System.getenv().get("DB_URL"));
+        databaseBean.setUsername(System.getenv().get("DB_USERNAME"));
+        databaseBean.setPassword(System.getenv().get("DB_PASSWORD"));
+        databaseBean.setDriver(System.getenv().get("DB_DRIVER"));
+    }
+
+    public Connection connect() {
+            try {
+                Class.forName(databaseBean.getDriver());
+                Connection con = DriverManager.getConnection(databaseBean.getUrl(), databaseBean.getUsername(), databaseBean.getPassword());
+                return con;
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
     }
 
     public static void insertAFile(File child) throws SQLException, IOException {
         String file_name = child.getName();
         FileInputStream fis = new FileInputStream(child);
-        Connection con = connect();
+        DatabaseFunctions databaseFunctions = new DatabaseFunctions();
+        Connection con = databaseFunctions.connect();
         PreparedStatement prtmt = con.prepareStatement("INSERT INTO files(file_name, file_data) VALUES (?, ?)");
         prtmt.setString(1, file_name);
         prtmt.setBinaryStream(2, fis, (int) child.length());
@@ -41,7 +48,8 @@ public class DatabaseFunctions {
     }
 
     public static List<FileModel> getAllFiles() throws SQLException, ClassNotFoundException, IOException, URISyntaxException {
-        Connection con = connect();
+        DatabaseFunctions databaseFunctions = new DatabaseFunctions();
+        Connection con = databaseFunctions.connect();
         PreparedStatement prtmt;
         prtmt = con.prepareStatement("SELECT * FROM files");
         ResultSet rs = prtmt.executeQuery();
