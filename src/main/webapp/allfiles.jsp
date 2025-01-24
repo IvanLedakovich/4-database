@@ -1,6 +1,7 @@
 <%@page import="java.util.List"%>
 <%@ page import="com.ivanledakovich.models.FileModel" %>
-<%@ page import="com.ivanledakovich.utils.DatabaseFunctions" %>
+<%@ page import="com.ivanledakovich.database.FileDatabaseFunctions" %>
+<%@ page import="com.ivanledakovich.utils.ConfigurationVariables" %>
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -18,8 +19,8 @@
                   <tr align="center"><th>Creation Date</th><th>File Name</th><th>Download</th></tr>
                </thead>
                <tbody>
-                  <% DatabaseFunctions databaseFunctions = new DatabaseFunctions();
-                      List<FileModel> fileModels = databaseFunctions.getAllFiles();
+                  <% FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getEnvironmentVariables());
+                      List<FileModel> fileModels = fileDatabaseFunctions.getAllFiles();
                       if(fileModels.size() > 0) {
                       for (int i = 0; i < fileModels.size(); i++) {
                   %>

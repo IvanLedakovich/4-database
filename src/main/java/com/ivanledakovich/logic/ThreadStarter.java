@@ -1,6 +1,7 @@
 package com.ivanledakovich.logic;
 
-import com.ivanledakovich.utils.DatabaseFunctions;
+import com.ivanledakovich.database.FileDatabaseFunctions;
+import com.ivanledakovich.utils.ConfigurationVariables;
 import org.apache.commons.io.FileDeleteStrategy;
 
 import java.io.File;
@@ -16,8 +17,8 @@ public class ThreadStarter {
             for (File child : directoryListing) {
                 Thread thread = new Thread();
                 thread.startANewThread(imageExtension, convertedPath, child.getAbsolutePath());
-                DatabaseFunctions databaseFunctions = new DatabaseFunctions();
-                databaseFunctions.insertAFile(child);
+                FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getEnvironmentVariables());
+                fileDatabaseFunctions.insertAFile(child);
                 FileDeleteStrategy.FORCE.delete(child);
             }
         }

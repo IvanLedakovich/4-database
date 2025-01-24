@@ -1,6 +1,6 @@
-package com.ivanledakovich.utils;
+package com.ivanledakovich.database;
 
-import com.ivanledakovich.models.DatabaseBean;
+import com.ivanledakovich.models.DatabaseDao;
 import com.ivanledakovich.models.FileModel;
 
 import java.io.File;
@@ -14,22 +14,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseFunctions {
+public class FileDatabaseFunctions {
 
-    private final DatabaseBean databaseBean = new DatabaseBean();
+    private DatabaseDao databaseDao;
 
-    public DatabaseFunctions() {
-        databaseBean.setUrl(System.getenv().get("DB_URL"));
-        databaseBean.setUsername(System.getenv().get("DB_USERNAME"));
-        databaseBean.setPassword(System.getenv().get("DB_PASSWORD"));
-        databaseBean.setDriver(System.getenv().get("DB_DRIVER"));
+    public FileDatabaseFunctions(DatabaseDao databaseDao) {
+        this.databaseDao = databaseDao;
         createTableIfNotExists();
     }
 
     public Connection connect() {
         try {
-            Class.forName(databaseBean.getDriver());
-            return DriverManager.getConnection(databaseBean.getUrl(), databaseBean.getUsername(), databaseBean.getPassword());
+            Class.forName(databaseDao.getDriver());
+            return DriverManager.getConnection(databaseDao.getUrl(), databaseDao.getUsername(), databaseDao.getPassword());
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -72,7 +69,7 @@ public class DatabaseFunctions {
             FileModel file = new FileModel();
 
             while (rs.next()) {
-                URL res = DatabaseFunctions.class.getClassLoader().getResource("uploadedFiles");
+                URL res = FileDatabaseFunctions.class.getClassLoader().getResource("uploadedFiles");
                 File newFile = Paths.get(res.toURI()).toFile();
                 String absolutePath = newFile.getAbsolutePath();
                 File fileUploadDirectory = new File(absolutePath);
@@ -102,7 +99,7 @@ public class DatabaseFunctions {
 
             while (rs.next()) {
                 FileModel file = new FileModel();
-                URL res = DatabaseFunctions.class.getClassLoader().getResource("uploadedFiles");
+                URL res = FileDatabaseFunctions.class.getClassLoader().getResource("uploadedFiles");
                 File newFile = Paths.get(res.toURI()).toFile();
                 String absolutePath = newFile.getAbsolutePath();
                 File fileUploadDirectory = new File(absolutePath);

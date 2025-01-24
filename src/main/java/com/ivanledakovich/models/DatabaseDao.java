@@ -1,12 +1,12 @@
 package com.ivanledakovich.models;
 
-public class DatabaseBean {
+public class DatabaseDao {
         private String url;
         private String username;
         private String password;
         private String driver;
 
-        public DatabaseBean() {}
+        public DatabaseDao() {}
 
         public String getUrl() {
             return url;

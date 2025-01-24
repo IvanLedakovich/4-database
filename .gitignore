@@ -75,3 +75,4 @@ replay_pid*
 /target/
 /META-INF/
 /src/main/resources/config.txt
+/tempTestDir/testFile.txt
