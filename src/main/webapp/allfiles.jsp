@@ -18,7 +18,8 @@
                   <tr align="center"><th>Creation Date</th><th>File Name</th><th>Download</th></tr>
                </thead>
                <tbody>
-                  <% List<FileModel> fileModels = DatabaseFunctions.getAllFiles();
+                  <% DatabaseFunctions databaseFunctions = new DatabaseFunctions();
+                      List<FileModel> fileModels = databaseFunctions.getAllFiles();
                       if(fileModels.size() > 0) {
                       for (int i = 0; i < fileModels.size(); i++) {
                   %>

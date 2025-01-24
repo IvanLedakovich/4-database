@@ -16,7 +16,8 @@ public class ThreadStarter {
             for (File child : directoryListing) {
                 Thread thread = new Thread();
                 thread.startANewThread(imageExtension, convertedPath, child.getAbsolutePath());
-                DatabaseFunctions.insertAFile(child);
+                DatabaseFunctions databaseFunctions = new DatabaseFunctions();
+                databaseFunctions.insertAFile(child);
                 FileDeleteStrategy.FORCE.delete(child);
             }
         }

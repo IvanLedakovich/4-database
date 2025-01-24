@@ -5,6 +5,7 @@ import java.util.Date;
 public class FileModel {
     private Date date;
     private String file_name;
+    private byte[] file_data;
 
     public void setDate(Date date) {
         this.date = date;
@@ -18,5 +19,13 @@ public class FileModel {
     }
     public String getFile_name() {
         return this.file_name;
+    }
+
+    public byte[] getFile_data() {
+        return file_data;
+    }
+
+    public void setFile_data(byte[] file_data) {
+        this.file_data = file_data;
     }
 }

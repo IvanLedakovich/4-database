@@ -17,6 +17,7 @@ dependencies {
     compileOnly group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.12.0'
+    testImplementation group: 'com.h2database', name: 'h2', version: '2.3.232'
     implementation group: 'commons-io', name: 'commons-io', version: '2.17.0'
     implementation group: 'log4j', name: 'log4j', version: '1.2.17'
     implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '9.0.87'
