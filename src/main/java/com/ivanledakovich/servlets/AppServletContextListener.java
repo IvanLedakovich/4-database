@@ -11,7 +11,7 @@ import java.util.Properties;
 /**
  * This class contains context logic
  *
- * Loads configuration from config.txt, with fallback to defaultConfig.txt.
+ * Loads configuration from config.properties, with fallback to defaultConfig.properties.
  */
 public class AppServletContextListener implements ServletContextListener {
 
@@ -20,15 +20,15 @@ public class AppServletContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         Properties properties = new Properties();
-        try (InputStream configStream = getResourceAsStream("config.txt")) {
+        try (InputStream configStream = getResourceAsStream("config.properties")) {
             if (configStream != null) {
                 properties.load(configStream);
             } else {
-                try (InputStream defaultStream = getResourceAsStream("defaultConfig.txt")) {
+                try (InputStream defaultStream = getResourceAsStream("defaultConfig.properties")) {
                     if (defaultStream != null) {
                         properties.load(defaultStream);
                     } else {
-                        throw new IllegalArgumentException("Neither config.txt nor defaultConfig.txt found");
+                        throw new IllegalArgumentException("Neither config.properties nor defaultConfig.properties found");
                     }
                 }
             }

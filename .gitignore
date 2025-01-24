@@ -76,3 +76,4 @@ replay_pid*
 /META-INF/
 /src/main/resources/config.txt
 /tempTestDir/testFile.txt
+/src/main/resources/config.properties
