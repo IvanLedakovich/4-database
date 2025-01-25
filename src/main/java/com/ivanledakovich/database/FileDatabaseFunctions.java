@@ -82,8 +82,8 @@ public class FileDatabaseFunctions {
                 fos.close();
 
                 file.setDate(rs.getDate("creation_date"));
-                file.setFile_name(rs.getString("file_name"));
-                file.setFile_data(fileBytes);
+                file.setFileName(rs.getString("file_name"));
+                file.setFileData(fileBytes);
             }
 
             return file;
@@ -112,7 +112,7 @@ public class FileDatabaseFunctions {
                 fos.close();
 
                 file.setDate(rs.getDate("creation_date"));
-                file.setFile_name(rs.getString("file_name"));
+                file.setFileName(rs.getString("file_name"));
                 files.add(file);
             }
 

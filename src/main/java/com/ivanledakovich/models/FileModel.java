@@ -4,28 +4,28 @@ import java.util.Date;
 
 public class FileModel {
     private Date date;
-    private String file_name;
-    private byte[] file_data;
+    private String fileName;
+    private byte[] fileData;
 
     public void setDate(Date date) {
         this.date = date;
     }
-    public void setFile_name(String file_name) {
-        this.file_name = file_name;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public Date getDate() {
         return this.date;
     }
-    public String getFile_name() {
-        return this.file_name;
+    public String getFileName() {
+        return this.fileName;
     }
 
-    public byte[] getFile_data() {
-        return file_data;
+    public byte[] getFileData() {
+        return fileData;
     }
 
-    public void setFile_data(byte[] file_data) {
-        this.file_data = file_data;
+    public void setFileData(byte[] fileData) {
+        this.fileData = fileData;
     }
 }

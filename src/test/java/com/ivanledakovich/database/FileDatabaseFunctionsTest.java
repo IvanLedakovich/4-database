@@ -48,7 +48,7 @@ public class FileDatabaseFunctionsTest {
         }
 
         FileModel file = fileDatabaseFunctions.getFileByName(testFile.getName());
-        Assert.assertEquals(testFile.getName(), file.getFile_name());
+        Assert.assertEquals(testFile.getName(), file.getFileName());
     }
 
     @Test
@@ -62,8 +62,8 @@ public class FileDatabaseFunctionsTest {
 
             List<FileModel> files = fileDatabaseFunctions.getAllFiles();
 
-            Assert.assertTrue(files.stream().anyMatch(f -> f.getFile_name().equals(testFile1.getName())));
-            Assert.assertTrue(files.stream().anyMatch(f -> f.getFile_name().equals(testFile2.getName())));
+            Assert.assertTrue(files.stream().anyMatch(f -> f.getFileName().equals(testFile1.getName())));
+            Assert.assertTrue(files.stream().anyMatch(f -> f.getFileName().equals(testFile2.getName())));
         } finally {
             fileDatabaseFunctions.deleteFileByName(testFile1.getName());
             fileDatabaseFunctions.deleteFileByName(testFile2.getName());
@@ -83,7 +83,7 @@ public class FileDatabaseFunctionsTest {
             FileModel fetchedFile = fileDatabaseFunctions.getFileByName(testFile.getName());
 
             Assert.assertNotNull("File should be present in the database", fetchedFile);
-            Assert.assertEquals("File name should match", testFile.getName(), fetchedFile.getFile_name());
+            Assert.assertEquals("File name should match", testFile.getName(), fetchedFile.getFileName());
         } finally {
             fileDatabaseFunctions.deleteFileByName(testFile.getName());
 
