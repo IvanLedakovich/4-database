@@ -51,20 +51,20 @@ public class FileDatabaseFunctions {
     }
 
     public void insertAFile(File child) throws SQLException, IOException {
-        String file_name = child.getName();
+        String fileName = child.getName();
         try (FileInputStream fis = new FileInputStream(child);
              Connection con = connect();
              PreparedStatement prtmt = con.prepareStatement("INSERT INTO files(file_name, file_data) VALUES (?, ?)")) {
-            prtmt.setString(1, file_name);
+            prtmt.setString(1, fileName);
             prtmt.setBinaryStream(2, fis, (int) child.length());
             prtmt.executeUpdate();
         }
     }
 
-    public FileModel getFileByName(String file_name) throws SQLException, IOException, URISyntaxException {
+    public FileModel getFileByName(String fileName) throws SQLException, IOException, URISyntaxException {
         try (Connection con = connect();
              PreparedStatement prtmt = con.prepareStatement("SELECT * FROM files WHERE file_name = ?")) {
-            prtmt.setString(1, file_name);
+            prtmt.setString(1, fileName);
             ResultSet rs = prtmt.executeQuery();
             FileModel file = new FileModel();
 
