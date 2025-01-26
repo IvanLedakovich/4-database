@@ -1,15 +1,13 @@
 package com.ivanledakovich.database;
 
+import com.ivanledakovich.logic.FileWriter;
 import com.ivanledakovich.models.DatabaseDao;
 import com.ivanledakovich.models.FileModel;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,23 +67,11 @@ public class FileDatabaseFunctions {
             FileModel file = new FileModel();
 
             while (rs.next()) {
-                URL res = FileDatabaseFunctions.class.getClassLoader().getResource("uploadedFiles");
-                File newFile = Paths.get(res.toURI()).toFile();
-                String absolutePath = newFile.getAbsolutePath();
-                File fileUploadDirectory = new File(absolutePath);
-                if (!fileUploadDirectory.exists()) {
-                    fileUploadDirectory.mkdirs();
-                }
-                FileOutputStream fos = new FileOutputStream(absolutePath + "//" + rs.getString("file_name") + ".txt");
-                byte[] fileBytes = rs.getBytes("file_data");
-                fos.write(fileBytes);
-                fos.close();
-
+                byte[] fileBytes = FileWriter.writeFile(rs);
                 file.setDate(rs.getDate("creation_date"));
                 file.setFileName(rs.getString("file_name"));
                 file.setFileData(fileBytes);
             }
-
             return file;
         }
     }
@@ -99,17 +85,7 @@ public class FileDatabaseFunctions {
 
             while (rs.next()) {
                 FileModel file = new FileModel();
-                URL res = FileDatabaseFunctions.class.getClassLoader().getResource("uploadedFiles");
-                File newFile = Paths.get(res.toURI()).toFile();
-                String absolutePath = newFile.getAbsolutePath();
-                File fileUploadDirectory = new File(absolutePath);
-                if (!fileUploadDirectory.exists()) {
-                    fileUploadDirectory.mkdirs();
-                }
-                FileOutputStream fos = new FileOutputStream(absolutePath + "//" + rs.getString("file_name") + ".txt");
-                byte[] fileBytes = rs.getBytes("file_data");
-                fos.write(fileBytes);
-                fos.close();
+                FileWriter.writeFile(rs);
 
                 file.setDate(rs.getDate("creation_date"));
                 file.setFileName(rs.getString("file_name"));
