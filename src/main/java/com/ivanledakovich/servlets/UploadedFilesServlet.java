@@ -1,6 +1,9 @@
 package com.ivanledakovich.servlets;
 
+import com.ivanledakovich.database.FileDatabaseFunctions;
 import com.ivanledakovich.logic.UploadDetail;
+import com.ivanledakovich.models.FileModel;
+import com.ivanledakovich.utils.ConfigurationVariables;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +30,15 @@ public class UploadedFilesServlet extends HttpServlet {
         String applicationPath = getServletContext().getRealPath(""),
                 uploadPath = applicationPath + File.separator + UPLOAD_DIR,
                 convertedPath = applicationPath + CONVERTED_DIR;
+
+        FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getEnvironmentVariables());
+        List<FileModel> fileModels;
+        try {
+            fileModels = fileDatabaseFunctions.getAllFiles();
+        } catch (SQLException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        request.setAttribute("fileModels", fileModels);
 
         File fileUploadDirectory = new File(uploadPath);
         if (!fileUploadDirectory.exists()) {
@@ -49,5 +63,11 @@ public class UploadedFilesServlet extends HttpServlet {
         request.setAttribute("uploadedFiles", fileList);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/allfiles.jsp");
         dispatcher.forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Forward POST requests to the doGet method for handling
+        doGet(request, response);
     }
 }

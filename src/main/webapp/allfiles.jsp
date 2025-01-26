@@ -19,9 +19,8 @@
                   <tr align="center"><th>Creation Date</th><th>File Name</th><th>Download</th></tr>
                </thead>
                <tbody>
-                  <% FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getEnvironmentVariables());
-                      List<FileModel> fileModels = fileDatabaseFunctions.getAllFiles();
-                      if(fileModels.size() > 0) {
+                  <%List<FileModel> fileModels = (List<FileModel>) request.getAttribute("fileModels");
+                    if(fileModels.size() > 0) {
                       for (int i = 0; i < fileModels.size(); i++) {
                   %>
                    <tr>
