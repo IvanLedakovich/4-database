@@ -1,6 +1,6 @@
 package com.ivanledakovich.utils;
 
-import com.ivanledakovich.models.DatabaseDao;
+import com.ivanledakovich.models.DatabaseConnectionProperties;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -11,13 +11,13 @@ public class ConfigurationVariables {
 
     private static final Logger logger = Logger.getLogger(ConfigurationVariables.class);
 
-    public static DatabaseDao getEnvironmentVariables() {
-        DatabaseDao databaseDao = new DatabaseDao();
-        databaseDao.setUrl(System.getenv().get("DB_URL"));
-        databaseDao.setUsername(System.getenv().get("DB_USERNAME"));
-        databaseDao.setPassword(System.getenv().get("DB_PASSWORD"));
-        databaseDao.setDriver(System.getenv().get("DB_DRIVER"));
-        return databaseDao;
+    public static DatabaseConnectionProperties getDatabaseConnectionProperties() {
+        DatabaseConnectionProperties databaseConnectionProperties = new DatabaseConnectionProperties();
+        databaseConnectionProperties.setUrl(System.getenv().get("DB_URL"));
+        databaseConnectionProperties.setUsername(System.getenv().get("DB_USERNAME"));
+        databaseConnectionProperties.setPassword(System.getenv().get("DB_PASSWORD"));
+        databaseConnectionProperties.setDriver(System.getenv().get("DB_DRIVER"));
+        return databaseConnectionProperties;
     }
 
     public static Properties getConfigProperties() {

@@ -1,7 +1,7 @@
 package com.ivanledakovich.database;
 
 import com.ivanledakovich.logic.FileWriter;
-import com.ivanledakovich.models.DatabaseDao;
+import com.ivanledakovich.models.DatabaseConnectionProperties;
 import com.ivanledakovich.models.FileModel;
 
 import java.io.File;
@@ -14,17 +14,17 @@ import java.util.List;
 
 public class FileDatabaseFunctions {
 
-    private DatabaseDao databaseDao;
+    private DatabaseConnectionProperties databaseConnectionProperties;
 
-    public FileDatabaseFunctions(DatabaseDao databaseDao) {
-        this.databaseDao = databaseDao;
+    public FileDatabaseFunctions(DatabaseConnectionProperties databaseConnectionProperties) {
+        this.databaseConnectionProperties = databaseConnectionProperties;
         createTableIfNotExists();
     }
 
     public Connection connect() {
         try {
-            Class.forName(databaseDao.getDriver());
-            return DriverManager.getConnection(databaseDao.getUrl(), databaseDao.getUsername(), databaseDao.getPassword());
+            Class.forName(databaseConnectionProperties.getDriver());
+            return DriverManager.getConnection(databaseConnectionProperties.getUrl(), databaseConnectionProperties.getUsername(), databaseConnectionProperties.getPassword());
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

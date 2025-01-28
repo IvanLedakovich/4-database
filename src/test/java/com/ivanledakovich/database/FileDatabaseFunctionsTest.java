@@ -16,7 +16,7 @@ import java.util.List;
 
 public class FileDatabaseFunctionsTest {
 
-    private FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getEnvironmentVariables());
+    private FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getDatabaseConnectionProperties());
     private static final Logger logger = Logger.getLogger(FileDatabaseFunctionsTest.class);
 
     private File getTestFile() throws URISyntaxException {

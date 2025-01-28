@@ -31,7 +31,7 @@ public class UploadedFilesServlet extends HttpServlet {
                 uploadPath = applicationPath + File.separator + UPLOAD_DIR,
                 convertedPath = applicationPath + CONVERTED_DIR;
 
-        FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getEnvironmentVariables());
+        FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getDatabaseConnectionProperties());
         List<FileModel> fileModels;
         try {
             fileModels = fileDatabaseFunctions.getAllFiles();

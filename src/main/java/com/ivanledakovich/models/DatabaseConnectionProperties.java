@@ -1,12 +1,12 @@
 package com.ivanledakovich.models;
 
-public class DatabaseDao {
+public class DatabaseConnectionProperties {
         private String url;
         private String username;
         private String password;
         private String driver;
 
-        public DatabaseDao() {}
+        public DatabaseConnectionProperties() {}
 
         public String getUrl() {
             return url;
