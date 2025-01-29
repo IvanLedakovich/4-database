@@ -32,6 +32,11 @@ public class FileUploadServlet extends HttpServlet {
             fileUploadDirectory.mkdirs();
         }
 
+        File fileSaveLocation = new File(saveLocation);
+        if (!fileSaveLocation.exists()) {
+            fileSaveLocation.mkdirs();
+        }
+
         String fileName = "";
         UploadDetail details = null;
         List<UploadDetail> fileList = new ArrayList<UploadDetail>();
