@@ -1,29 +1,28 @@
 package com.ivanledakovich.logic;
 
-import com.ivanledakovich.database.FileDatabaseFunctions;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class FileWriter {
-    public static byte[] writeFile(ResultSet rs) throws URISyntaxException, SQLException, IOException {
-        URL res = FileDatabaseFunctions.class.getClassLoader().getResource("uploadedFiles");
-        File newFile = Paths.get(res.toURI()).toFile();
-        String absolutePath = newFile.getAbsolutePath();
-        File fileUploadDirectory = new File(absolutePath);
-        if (!fileUploadDirectory.exists()) {
-            fileUploadDirectory.mkdirs();
+    private static final String UPLOAD_DIR = System.getProperty("java.io.tmpdir") + "/uploadedFiles/";
+
+    public static byte[] writeFile(ResultSet rs) throws SQLException, IOException {
+        File uploadDir = new File(UPLOAD_DIR);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
         }
-        FileOutputStream fos = new FileOutputStream(absolutePath + "//" + rs.getString("file_name") + ".txt");
+
+        String fileName = rs.getString("file_name");
         byte[] fileBytes = rs.getBytes("file_data");
-        fos.write(fileBytes);
-        fos.close();
+
+        File outputFile = new File(uploadDir, fileName + ".txt");
+
+        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+            fos.write(fileBytes);
+        }
         return fileBytes;
     }
 }
