@@ -1,7 +1,5 @@
 <%@page import="java.util.List"%>
 <%@ page import="com.ivanledakovich.models.FileModel" %>
-<%@ page import="com.ivanledakovich.database.FileDatabaseFunctions" %>
-<%@ page import="com.ivanledakovich.utils.ConfigurationVariables" %>
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>

@@ -10,18 +10,13 @@ import java.util.Properties;
 public class ConfigurationVariables {
 
     private static final Logger logger = Logger.getLogger(ConfigurationVariables.class);
+    private static final Properties properties = new Properties();
 
-    public static DatabaseConnectionProperties getDatabaseConnectionProperties() {
-        DatabaseConnectionProperties databaseConnectionProperties = new DatabaseConnectionProperties();
-        databaseConnectionProperties.setUrl(System.getenv().get("DB_URL"));
-        databaseConnectionProperties.setUsername(System.getenv().get("DB_USERNAME"));
-        databaseConnectionProperties.setPassword(System.getenv().get("DB_PASSWORD"));
-        databaseConnectionProperties.setDriver(System.getenv().get("DB_DRIVER"));
-        return databaseConnectionProperties;
+    static {
+        loadProperties();
     }
 
-    public static Properties getConfigProperties() {
-        Properties properties = new Properties();
+    private static void loadProperties() {
         try (InputStream configStream = getResourceAsStream("/config.properties")) {
             if (configStream != null) {
                 logger.info("Loading config.properties...");
@@ -42,6 +37,18 @@ public class ConfigurationVariables {
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    public static DatabaseConnectionProperties getDatabaseConnectionProperties() {
+        DatabaseConnectionProperties databaseConnectionProperties = new DatabaseConnectionProperties();
+        databaseConnectionProperties.setUrl(properties.getProperty("DB_URL"));
+        databaseConnectionProperties.setUsername(properties.getProperty("DB_USERNAME"));
+        databaseConnectionProperties.setPassword(properties.getProperty("DB_PASSWORD"));
+        databaseConnectionProperties.setDriver(properties.getProperty("DB_DRIVER"));
+        return databaseConnectionProperties;
+    }
+
+    public static Properties getConfigProperties() {
         return properties;
     }
 

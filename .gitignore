@@ -77,3 +77,4 @@ replay_pid*
 /src/main/resources/config.txt
 /tempTestDir/testFile.txt
 /src/main/resources/config.properties
+/src/test/resources/config.properties

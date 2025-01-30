@@ -1,9 +1,9 @@
 package com.ivanledakovich.database;
 
+import com.ivanledakovich.models.DatabaseConnectionProperties;
 import com.ivanledakovich.models.FileModel;
-import com.ivanledakovich.utils.ConfigurationVariables;
-import org.apache.log4j.Logger;
-import org.junit.Assert;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -11,13 +11,35 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class FileDatabaseFunctionsTest {
 
-    private FileDatabaseFunctions fileDatabaseFunctions = new FileDatabaseFunctions(ConfigurationVariables.getDatabaseConnectionProperties());
-    private static final Logger logger = Logger.getLogger(FileDatabaseFunctionsTest.class);
+    private FileDatabaseFunctions fileDatabaseFunctions;
+
+    @Before
+    public void setUp() {
+        DatabaseConnectionProperties h2Props = new DatabaseConnectionProperties(
+                "org.h2.Driver",
+                "jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE",
+                "sa",
+                ""
+        );
+        fileDatabaseFunctions = new FileDatabaseFunctions(h2Props);
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        try (Connection connection = fileDatabaseFunctions.connect();
+             Statement statement = connection.createStatement()) {
+            statement.execute("DELETE FROM files");
+        }
+    }
 
     private File getTestFile() throws URISyntaxException {
         ClassLoader classLoader = getClass().getClassLoader();
@@ -41,53 +63,39 @@ public class FileDatabaseFunctionsTest {
     public void testGetFileByName() throws URISyntaxException, SQLException, IOException {
         File testFile = getTestFile();
 
-        try {
-            fileDatabaseFunctions.insertAFile(testFile);
-        } catch (SQLException | IOException e) {
-            logger.error(e);
-        }
-
+        fileDatabaseFunctions.insertAFile(testFile);
         FileModel file = fileDatabaseFunctions.getFileByName(testFile.getName());
-        Assert.assertEquals(testFile.getName(), file.getFileName());
+
+        assertEquals(testFile.getName(), file.getFileName());
     }
 
     @Test
     public void testGetAllFiles() throws Exception {
-        File testFile1 = createTemporaryFile("testFile1.txt", "Content of test file 1");
-        File testFile2 = createTemporaryFile("testFile2.txt", "Content of test file 2");
+        File testFile1 = createTemporaryFile("testFile1", "Content 1");
+        File testFile2 = createTemporaryFile("testFile2", "Content 2");
 
-        try {
-            fileDatabaseFunctions.insertAFile(testFile1);
-            fileDatabaseFunctions.insertAFile(testFile2);
+        fileDatabaseFunctions.insertAFile(testFile1);
+        fileDatabaseFunctions.insertAFile(testFile2);
 
-            List<FileModel> files = fileDatabaseFunctions.getAllFiles();
+        List<FileModel> files = fileDatabaseFunctions.getAllFiles();
 
-            Assert.assertTrue(files.stream().anyMatch(f -> f.getFileName().equals(testFile1.getName())));
-            Assert.assertTrue(files.stream().anyMatch(f -> f.getFileName().equals(testFile2.getName())));
-        } finally {
-            fileDatabaseFunctions.deleteFileByName(testFile1.getName());
-            fileDatabaseFunctions.deleteFileByName(testFile2.getName());
+        assertTrue(files.stream().anyMatch(f -> f.getFileName().equals(testFile1.getName())));
+        assertTrue(files.stream().anyMatch(f -> f.getFileName().equals(testFile2.getName())));
 
-            testFile1.delete();
-            testFile2.delete();
-        }
+        testFile1.delete();
+        testFile2.delete();
     }
 
     @Test
     public void testInsertFile() throws Exception {
-        File testFile = createTemporaryFile("testInsertFile.txt", "This is a test file for insertion.");
+        File testFile = createTemporaryFile("testInsert", "Test content");
 
-        try {
-            fileDatabaseFunctions.insertAFile(testFile);
+        fileDatabaseFunctions.insertAFile(testFile);
+        FileModel fetchedFile = fileDatabaseFunctions.getFileByName(testFile.getName());
 
-            FileModel fetchedFile = fileDatabaseFunctions.getFileByName(testFile.getName());
+        assertNotNull("File should be present in the database", fetchedFile);
+        assertEquals("File name should match", testFile.getName(), fetchedFile.getFileName());
 
-            Assert.assertNotNull("File should be present in the database", fetchedFile);
-            Assert.assertEquals("File name should match", testFile.getName(), fetchedFile.getFileName());
-        } finally {
-            fileDatabaseFunctions.deleteFileByName(testFile.getName());
-
-            testFile.delete();
-        }
+        testFile.delete();
     }
 }
