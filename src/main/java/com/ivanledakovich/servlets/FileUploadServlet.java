@@ -2,17 +2,22 @@ package com.ivanledakovich.servlets;
 
 import com.ivanledakovich.logic.ThreadStarter;
 import com.ivanledakovich.logic.UploadDetail;
+import com.ivanledakovich.logic.UploadedFilesProcessor;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.ivanledakovich.utils.FolderCreator.createFolder;
 
 @WebServlet(description = "Upload File To The Server", urlPatterns = { "/fileUploadServlet" })
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 10, maxFileSize = 1024 * 1024 * 30, maxRequestSize = 1024 * 1024 * 50)
@@ -27,33 +32,11 @@ public class FileUploadServlet extends HttpServlet {
 
         String applicationPath = getServletContext().getRealPath(""), uploadPath = applicationPath + File.separator + UPLOAD_DIR;
 
-        File fileUploadDirectory = new File(uploadPath);
-        if (!fileUploadDirectory.exists()) {
-            fileUploadDirectory.mkdirs();
-        }
+        createFolder(uploadPath);
+        createFolder(saveLocation);
 
-        File fileSaveLocation = new File(saveLocation);
-        if (!fileSaveLocation.exists()) {
-            fileSaveLocation.mkdirs();
-        }
-
-        String fileName = "";
-        UploadDetail details = null;
-        List<UploadDetail> fileList = new ArrayList<UploadDetail>();
-
-        for (Part part : request.getParts()) {
-            fileName = extractFileName(part);
-            details = new UploadDetail();
-            details.setFileName(fileName);
-            details.setFileSize(part.getSize() / 1024);
-            try {
-                part.write(uploadPath + File.separator + fileName);
-                details.setUploadStatus("Success");
-                fileList.add(details);
-            } catch (IOException ioObj) {
-                details.setUploadStatus("Failure : "+ ioObj.getMessage());
-            }
-        }
+        UploadedFilesProcessor uploadedFilesProcessor = new UploadedFilesProcessor();
+        List<UploadDetail> fileList = uploadedFilesProcessor.processUploadedFiles(request, uploadPath);
 
         request.setAttribute("uploadedFiles", fileList);
         HttpSession session = request.getSession();
@@ -67,17 +50,5 @@ public class FileUploadServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
         response.getWriter().append("Input: " + imageExtension + " " + saveLocation);
-    }
-
-    private String extractFileName(Part part) {
-        String fileName = "",
-                contentDisposition = part.getHeader("content-disposition");
-        String[] items = contentDisposition.split(";");
-        for (String item : items) {
-            if (item.trim().startsWith("filename")) {
-                fileName = item.substring(item.indexOf("=") + 2, item.length() - 1);
-            }
-        }
-        return fileName;
     }
 }

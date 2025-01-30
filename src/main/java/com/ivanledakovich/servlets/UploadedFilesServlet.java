@@ -4,6 +4,8 @@ import com.ivanledakovich.database.FileDatabaseFunctions;
 import com.ivanledakovich.logic.UploadDetail;
 import com.ivanledakovich.models.FileModel;
 import com.ivanledakovich.utils.ConfigurationVariables;
+import com.ivanledakovich.utils.FolderCreator;
+import com.ivanledakovich.utils.ListPopulator;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -40,25 +42,16 @@ public class UploadedFilesServlet extends HttpServlet {
         }
         request.setAttribute("fileModels", fileModels);
 
+        FolderCreator.createFolder(uploadPath);
+        FolderCreator.createFolder(convertedPath);
+
         File fileUploadDirectory = new File(uploadPath);
-        if (!fileUploadDirectory.exists()) {
-            fileUploadDirectory.mkdirs();
-        }
-        File fileConvertedDirectory = new File(convertedPath);
-        if (!fileConvertedDirectory.exists()) {
-            fileConvertedDirectory.mkdirs();
-        }
 
         UploadDetail details = null;
         File[] allFiles = fileUploadDirectory.listFiles();
         List<UploadDetail> fileList = new ArrayList<UploadDetail>();
 
-        for (File file : allFiles) {
-            details = new UploadDetail();
-            details.setFileName(file.getName());
-            details.setFileSize(file.length() / 1024);
-            fileList.add(details);
-        }
+        ListPopulator.populateListWithFiles(allFiles, fileList);
 
         request.setAttribute("uploadedFiles", fileList);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/allfiles.jsp");
@@ -67,7 +60,6 @@ public class UploadedFilesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Forward POST requests to the doGet method for handling
         doGet(request, response);
     }
 }

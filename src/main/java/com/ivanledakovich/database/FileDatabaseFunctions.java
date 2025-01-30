@@ -59,7 +59,7 @@ public class FileDatabaseFunctions {
         }
     }
 
-    public FileModel getFileByName(String fileName) throws SQLException, IOException, URISyntaxException {
+    public FileModel getFileByName(String fileName) throws SQLException {
         try (Connection con = connect();
              PreparedStatement prtmt = con.prepareStatement("SELECT * FROM files WHERE file_name = ?")) {
             prtmt.setString(1, fileName);
@@ -67,10 +67,9 @@ public class FileDatabaseFunctions {
             FileModel file = new FileModel();
 
             while (rs.next()) {
-                byte[] fileBytes = FileWriter.writeFile(rs);
                 file.setDate(rs.getDate("creation_date"));
                 file.setFileName(rs.getString("file_name"));
-                file.setFileData(fileBytes);
+                file.setFileData(rs.getBytes("file_data"));
             }
             return file;
         }
