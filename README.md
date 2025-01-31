@@ -10,10 +10,17 @@ There are 2 ways to run the application: inside the IDE and on an Apache Tomcat 
 
 Inside IDE (IntelliJ IDEA):
 
-1. Install the Smart Tomcat plugin inside the IDE settings.
-2. In Run/Debug Configurations add a new configuration using Smart Tomcat.
-3. Download the Apache Tomcat and configure the parameters
-4. Provide the program with a configuration file under the resources folder where output paths are stored to choose from
-5. Create a database such as provided in the "dbexample" folder
-6. In Run/Debug configuration provide the program with the POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB arguments
-7. Run the program
+1. Install the Smart Tomcat plugin inside the IDE settings
+2. Download the Apache Tomcat
+3. In Run/Debug Configurations add a new one using Smart Tomcat and configure it
+4. Create and write a config.properties file in accordance to the defaultConfig.properties one in the resources folder
+5. Run the program
+
+Through .war and Apache Tomcat
+
+1. In the Gradle task menu execute the "war" task
+2. Copy the .war file to the webapps folder of Apache Tomcat
+3. Run the application on the Tomcat server
+4. Once the .war archive has been extracted into a separate folder, 
+provide your configuration file next to the defaultConfig.properties in \WEB-INF\classes
+5. Rerun the Apache Tomcat server and the application is functional
