@@ -24,7 +24,7 @@
                    <tr>
                       <td align="center"><span id="creationDate"><%=fileModels.get(i).getDate()%></span></td>
                       <td align="center"><span id="fileName"><%=fileModels.get(i).getFileName()%></span></td>
-                       <td align="center"><span id="fileDownload"><a id="downloadLink" class="hyperLink" href="<%=request.getContextPath()%>/downloadServlet?fileName=<%=fileModels.get(i).getFileName()%>.txt">Download</a></span></td>
+                       <td align="center"><span id="fileDownload"><a id="downloadLink" class="hyperLink" href="<%=request.getContextPath()%>/downloadServlet?fileName=<%=fileModels.get(i).getFileName()%>">Download</a></span></td>
                    <% }
                       } else { %>
                   <tr>

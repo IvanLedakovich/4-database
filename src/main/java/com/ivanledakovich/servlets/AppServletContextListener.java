@@ -19,10 +19,8 @@ public class AppServletContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         Properties properties = ConfigurationVariables.getConfigProperties();
 
-        // Store all properties
         servletContextEvent.getServletContext().setAttribute("configProperties", properties);
 
-        // Extract only save locations
         Map<String, String> saveLocations = new HashMap<>();
         for (String key : properties.stringPropertyNames()) {
             if (key.startsWith("saveLocation_")) {
@@ -30,7 +28,6 @@ public class AppServletContextListener implements ServletContextListener {
             }
         }
 
-        // Store save locations separately for dropdown use
         servletContextEvent.getServletContext().setAttribute("myEnvironment", saveLocations);
     }
 }

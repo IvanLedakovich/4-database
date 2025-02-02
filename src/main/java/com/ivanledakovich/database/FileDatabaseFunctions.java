@@ -1,6 +1,5 @@
 package com.ivanledakovich.database;
 
-import com.ivanledakovich.logic.FileWriter;
 import com.ivanledakovich.models.DatabaseConnectionProperties;
 import com.ivanledakovich.models.FileModel;
 
@@ -84,13 +83,10 @@ public class FileDatabaseFunctions {
 
             while (rs.next()) {
                 FileModel file = new FileModel();
-                FileWriter.writeFile(rs);
-
                 file.setDate(rs.getDate("creation_date"));
                 file.setFileName(rs.getString("file_name"));
                 files.add(file);
             }
-
             return files;
         }
     }

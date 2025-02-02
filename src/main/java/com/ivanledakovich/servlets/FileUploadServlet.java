@@ -29,13 +29,11 @@ public class FileUploadServlet extends HttpServlet {
     private final UploadedFilesProcessor uploadedFilesProcessor;
     private final ThreadStarter threadStarter;
 
-    // Default constructor (used by Servlet container)
     public FileUploadServlet() {
         this.uploadedFilesProcessor = new UploadedFilesProcessor();
         this.threadStarter = new ThreadStarter();
     }
 
-    // Constructor for injecting mock dependencies (used in tests)
     public FileUploadServlet(UploadedFilesProcessor uploadedFilesProcessor, ThreadStarter threadStarter) {
         this.uploadedFilesProcessor = uploadedFilesProcessor;
         this.threadStarter = threadStarter;

@@ -1,29 +1,38 @@
 package com.ivanledakovich.servlets;
 
-import com.ivanledakovich.utils.FileExtractor;
+import com.ivanledakovich.logic.FileService;
+import com.ivanledakovich.models.FileModel;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
-@WebServlet(description = "Download File From The Server", urlPatterns = { "/downloadServlet" })
+@WebServlet("/downloadServlet")
 public class FileDownloadServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+    private FileService fileService = new FileService();
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        String fileName = request.getParameter("fileName"), filePath = getClass().getClassLoader().getResource("uploadedFiles").getPath() + File.separator + fileName;
-
-        File file = new File(filePath);
-        if (file.exists()) {
-            FileExtractor.extractFile(response, file);
-        } else {
-            response.setContentType("text/html");
-            response.getWriter().println("<h3>File "+ fileName +" Does Not Exist</h3>");
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String fileName = request.getParameter("fileName");
+        try {
+            FileModel file = fileService.getFile(fileName);
+            if (file != null && file.getFileData() != null) {
+                response.setContentType("application/octet-stream");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+                response.getOutputStream().write(file.getFileData());
+            } else {
+                sendError(response, fileName);
+            }
+        } catch (SQLException e) {
+            sendError(response, fileName);
         }
+    }
+
+    private void sendError(HttpServletResponse response, String fileName) throws IOException {
+        response.setContentType("text/html");
+        response.getWriter().println("<h3>File " + fileName + " Does Not Exist</h3>");
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 }
