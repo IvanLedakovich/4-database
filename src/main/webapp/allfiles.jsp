@@ -14,7 +14,7 @@
             <h1>Uploaded Files</h1>
             <table class="bordered_table">
                <thead>
-                  <tr align="center"><th>Creation Date</th><th>File Name</th><th>Download</th></tr>
+                  <tr align="center"><th>Creation Date</th><th>File Name</th><th>Download txt file</th><th>Download image</th></tr>
                </thead>
                <tbody>
                   <%List<FileModel> fileModels = (List<FileModel>) request.getAttribute("fileModels");
@@ -24,7 +24,8 @@
                    <tr>
                       <td align="center"><span id="creationDate"><%=fileModels.get(i).getDate()%></span></td>
                       <td align="center"><span id="fileName"><%=fileModels.get(i).getFileName()%></span></td>
-                       <td align="center"><span id="fileDownload"><a id="downloadLink" class="hyperLink" href="<%=request.getContextPath()%>/downloadServlet?fileName=<%=fileModels.get(i).getFileName()%>">Download</a></span></td>
+                       <td align="center"><span id="fileDownload"><a id="txtDownloadLink" class="hyperLink" href="<%=request.getContextPath()%>/downloadServlet?fileName=<%=fileModels.get(i).getFileName()%>">Download</a></span></td>
+                       <td align="center"><span id="imageDownload"><a id="imgDownloadLink" class="hyperLink" href="<%=request.getContextPath()%>/downloadServlet?fileName=<%=fileModels.get(i).getFileName()%>.<%=fileModels.get(i).getImageType()%>">Download</a></span></td>
                    <% }
                       } else { %>
                   <tr>

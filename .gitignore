@@ -74,7 +74,5 @@ replay_pid*
 /src/main/webapp/uploadedFiles/
 /target/
 /META-INF/
-/src/main/resources/config.txt
 /tempTestDir/testFile.txt
 /src/main/resources/config.properties
-/src/test/resources/config.properties

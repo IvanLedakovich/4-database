@@ -18,7 +18,7 @@ public class UploadedFilesProcessor {
             String fileName = FileNameExtractor.extractFileName(part);
 
             if (fileName == null || fileName.isEmpty()) {
-                continue; // Skip empty file parts
+                continue;
             }
 
             UploadDetail details = new UploadDetail();

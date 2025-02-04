@@ -2,6 +2,7 @@ package com.ivanledakovich.servlets;
 
 import com.ivanledakovich.logic.FileService;
 import com.ivanledakovich.models.FileModel;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,7 +22,12 @@ public class FileDownloadServlet extends HttpServlet {
             if (file != null && file.getFileData() != null) {
                 response.setContentType("application/octet-stream");
                 response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-                response.getOutputStream().write(file.getFileData());
+                if (FilenameUtils.getExtension(fileName).equals("txt")) {
+                    response.getOutputStream().write(file.getFileData());
+                }
+                else {
+                    response.getOutputStream().write(file.getImageData());
+                }
             } else {
                 sendError(response, fileName);
             }
