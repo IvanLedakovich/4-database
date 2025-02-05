@@ -35,9 +35,9 @@ public class FileDatabaseFunctions {
             CREATE TABLE IF NOT EXISTS files (
                 id SERIAL PRIMARY KEY,
                 creation_date DATE DEFAULT CURRENT_DATE,
-                file_name VARCHAR(255) NOT NULL,
+                file_name VARCHAR(255) UNIQUE NOT NULL,
                 file_data BYTEA NOT NULL,
-                image_name VARCHAR(255) NOT NULL,
+                image_name VARCHAR(255) UNIQUE NOT NULL,
                 image_type VARCHAR(255) NOT NULL,
                 image_data BYTEA NOT NULL
             )
@@ -51,7 +51,7 @@ public class FileDatabaseFunctions {
         }
     }
 
-    public void insertAFile(File txtFile, File imageFile) throws SQLException, IOException {
+    public void insertAFile(File txtFile, File imageFile) throws IOException, SQLException {
         try (
                 FileInputStream txtFis = new FileInputStream(txtFile);
                 FileInputStream imageFis = new FileInputStream(imageFile);
@@ -63,6 +63,9 @@ public class FileDatabaseFunctions {
             prtmt.setString(4, FilenameUtils.getExtension(imageFile.getName()));
             prtmt.setBinaryStream(5, imageFis, (int) imageFile.length());
             prtmt.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new SQLException(e);
         }
     }
 
