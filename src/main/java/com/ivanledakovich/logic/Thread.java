@@ -1,6 +1,10 @@
 package com.ivanledakovich.logic;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * This class handles the single thread logic
@@ -8,6 +12,8 @@ import java.awt.image.BufferedImage;
  * @author Ivan Ledakovich
  */
 public class Thread extends java.lang.Thread {
+
+	private final FileService fileService = new FileService();
 
 	private String imageFileType;
 	private String imageSaveLocation;
@@ -26,9 +32,24 @@ public class Thread extends java.lang.Thread {
 	 */
 	@Override
 	public void run() {
-		String data = FileReader.readFile(textFilePath);
-		BufferedImage image = ImageCreator.createImage(data);
-		ImageWriter.writeImage(image, imageFileType, imageSaveLocation, textFilePath);
+		try {
+			File tempFile = new File(textFilePath);
+			String imageName = tempFile.getName() + "." + imageFileType;
+
+			String data = FileReader.readFile(textFilePath);
+			BufferedImage image = ImageCreator.createImage(data);
+
+			File tempImage = new File(System.getProperty("java.io.tmpdir"), imageName);
+			ImageIO.write(image, imageFileType, tempImage);
+
+			fileService.insertFile(tempFile, tempImage);
+
+			tempFile.delete();
+			tempImage.delete();
+
+		} catch (IOException | SQLException e) {
+			ErrorNotifier.fileCouldNotBeWritten();
+		}
 	}
 
 	/**

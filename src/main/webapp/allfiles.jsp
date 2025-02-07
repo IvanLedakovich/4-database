@@ -29,7 +29,7 @@
                    <% }
                       } else { %>
                   <tr>
-                      <td colspan="3" align="center"><span id="noFiles">No Files Uploaded Yet</span></td>
+                      <td colspan="4" align="center"><span id="noFiles">No Files Uploaded Yet</span></td>
                   </tr>
                   <% } %>
                </tbody>

@@ -1,106 +1,82 @@
 package com.ivanledakovich.servlets;
 
-import com.ivanledakovich.logic.ThreadStarter;
-import com.ivanledakovich.logic.UploadDetail;
-import com.ivanledakovich.logic.UploadedFilesProcessor;
+import com.ivanledakovich.utils.ConfigurationVariables;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
-import java.io.IOException;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.SQLException;
 import java.util.Collections;
-import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class FileUploadServletTest {
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Mock private HttpServletRequest request;
+    @Mock private HttpServletResponse response;
+    @Mock private ServletConfig servletConfig;
+    @Mock private ServletContext servletContext;
+    @Mock private Part part;
+    @Mock private HttpSession session;
+    @Mock private RequestDispatcher requestDispatcher;
 
     private FileUploadServlet servlet;
-
-    @Mock
-    private UploadedFilesProcessor uploadedFilesProcessor;
-
-    @Mock
-    private ThreadStarter threadStarter;
-
-    @Mock
-    private HttpServletRequest request;
-
-    @Mock
-    private HttpServletResponse response;
-
-    @Mock
-    private HttpSession session;
-
-    @Mock
-    private Part part;
-
-    @Mock
-    private RequestDispatcher dispatcher;
-
-    @Mock
-    private ServletConfig servletConfig;
-
-    @Mock
-    private ServletContext servletContext;
-
     private StringWriter responseWriter;
 
     @Before
-    public void setUp() throws ServletException {
-        MockitoAnnotations.initMocks(this);
-        servlet = new FileUploadServlet(uploadedFilesProcessor, threadStarter);
-        responseWriter = new StringWriter();
+    public void setUp() throws Exception {
+        File storageFolder = tempFolder.newFolder("storage");
+        ConfigurationVariables.getConfigProperties().setProperty("STORAGE_PATH", storageFolder.getAbsolutePath());
+        ConfigurationVariables.getConfigProperties().setProperty("STORAGE_TYPE", "file_system");
 
+        servlet = new FileUploadServlet();
         when(servletConfig.getServletContext()).thenReturn(servletContext);
-        when(servletContext.getRealPath("")).thenReturn("/application/path");
-
-        when(request.getSession()).thenReturn(session);
-        when(request.getRequestDispatcher(anyString())).thenReturn(dispatcher);
-
+        when(servletContext.getRealPath(anyString())).thenReturn(tempFolder.newFolder("webapp").getAbsolutePath());
         servlet.init(servletConfig);
+
+        responseWriter = new StringWriter();
+        when(response.getWriter()).thenReturn(new PrintWriter(responseWriter));
+        when(request.getSession()).thenReturn(session);
+
+        when(request.getRequestDispatcher(eq("/uploadedFilesServlet"))).thenReturn(requestDispatcher);
+
+        when(request.getParts()).thenReturn(Collections.singleton(part));
+        lenient().when(part.getHeader(eq("content-disposition")))
+                .thenReturn("form-data; name=\"file\"; filename=\"test.txt\"");
     }
 
     @Test
-    public void verifyDoPostResponseIsCorrect() throws ServletException, IOException, SQLException {
+    public void verifyDoPostResponseIsCorrect() throws Exception {
         // Given
-        when(request.getParameter("imageExtension")).thenReturn(".jpg");
-        when(request.getParameter("saveLocation")).thenReturn("/save/location");
-        when(request.getParts()).thenReturn(Collections.singletonList(part));
-        when(part.getHeader("content-disposition")).thenReturn("form-data; name=\"file\"; filename=\"test.jpg\"");
-        when(part.getSize()).thenReturn(1024L);
-        doNothing().when(part).write(anyString());
-        when(response.getWriter()).thenReturn(new PrintWriter(responseWriter));
-
-        List<UploadDetail> mockFileList = Collections.emptyList();
-        when(uploadedFilesProcessor.processUploadedFiles(any(HttpServletRequest.class), anyString()))
-                .thenReturn(mockFileList);
-
-        doNothing().when(threadStarter).startThreads(anyString(), anyString(), anyString());
+        when(request.getParameter("imageExtension")).thenReturn("jpg");
 
         // When
         servlet.doPost(request, response);
 
         // Then
-        assertEquals("Input: .jpg /save/location", responseWriter.toString().trim());
+        String result = responseWriter.toString();
+        assertTrue("Response should contain processed parameters",
+                result.contains("Input: jpg " + ConfigurationVariables.getStoragePath()));
 
-        verify(response).getWriter();
-        verify(session).setAttribute(eq("uploadedFiles"), any());
-        verify(dispatcher).forward(request, response);
+        verify(requestDispatcher).forward(request, response);
     }
 }

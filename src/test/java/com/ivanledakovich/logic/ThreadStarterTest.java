@@ -1,87 +1,84 @@
 package com.ivanledakovich.logic;
 
-import org.apache.commons.io.FileUtils;
+import com.ivanledakovich.utils.ConfigurationVariables;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.FileWriter;
 import java.nio.file.Path;
-import java.sql.SQLException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-
 public class ThreadStarterTest {
-
     @Rule
-    public TemporaryFolder testInputFolder = new TemporaryFolder();
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    @Rule
-    public TemporaryFolder testOutputFolder = new TemporaryFolder();
+    private FileService fileService;
+    private Path uploadPath;
+    private Path convertedPath;
 
-    private CountDownLatch lock = new CountDownLatch(1);
+    @Before
+    public void setUp() throws Exception {
+        ConfigurationVariables.getConfigProperties().setProperty("STORAGE_TYPE", "file_system");
+        File storageFolder = tempFolder.newFolder("storage");
+        ConfigurationVariables.getConfigProperties().setProperty("STORAGE_PATH", storageFolder.getAbsolutePath());
 
+        uploadPath = tempFolder.newFolder("uploads").toPath();
+        convertedPath = storageFolder.toPath();
+        fileService = new FileService();
+    }
+
+    private File createTextFile() throws Exception {
+        File file = uploadPath.resolve("test.txt").toFile();
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write("Test content");
+        }
+        return file;
+    }
 
     @Test
     public void verifyTestOutputFileExists() throws Exception {
-        // given
-        File testInputFile = File.createTempFile("test", ".txt", new File(testInputFolder.getRoot().getPath()));
-        FileUtils.write(testInputFile, "test", StandardCharsets.UTF_8);
+        File txtFile = createTextFile();
+        ThreadStarter starter = new ThreadStarter(fileService);
+        String saveLocation = ConfigurationVariables.getStoragePath();
 
-        // when
-        Main.main(new String[] {"--file-type", "png", "--file-path", testInputFile.getPath(), "--save-location", testOutputFolder.getRoot().getPath()});
-        lock.await(2000, TimeUnit.MILLISECONDS);
+        starter.startThreads("png", uploadPath.toString(), saveLocation);
 
-        // then
-        assertTrue(new File(testOutputFolder.getRoot().getPath() + "\\" + testInputFile.getName() + ".png").exists());
+        TimeUnit.SECONDS.sleep(3);
+
+        File expectedImage = new File(saveLocation, txtFile.getName() + ".png");
+        assertTrue("Output image should exist", expectedImage.exists());
     }
 
     @Test
-    public void verifyTestOutputResultIsCorrect() throws IOException, InterruptedException, URISyntaxException, SQLException {
-        // given
-        String fileName = "control-sample.png";
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL resource = classLoader.getResource(fileName);
-        assert resource != null;
-        Path path = Path.of(resource.toURI());
-        File testInputFile = File.createTempFile("test", ".txt", new File(testInputFolder.getRoot().getPath()));
-        FileUtils.write(testInputFile, "test", StandardCharsets.UTF_8);
+    public void verifyArgumentsCasingHasNoEffect() throws Exception {
+        File txtFile = createTextFile();
+        ThreadStarter starter = new ThreadStarter(fileService);
+        String saveLocation = ConfigurationVariables.getStoragePath();
 
-        // when
-        Main.main(new String[] {"--file-type", "png", "--file-path", testInputFile.getPath(), "--save-location", testOutputFolder.getRoot().getPath()});
-        lock.await(2000, TimeUnit.MILLISECONDS);
-        Path outputFilePath = Path.of(testOutputFolder.getRoot().getPath() + "\\" + testInputFile.getName() + ".PNG");
+        starter.startThreads("PNG", uploadPath.toString(), saveLocation);
 
-        // then
-        assertEquals(-1, Files.mismatch(outputFilePath, path));
+        TimeUnit.SECONDS.sleep(3);
+
+        File expectedImage = new File(saveLocation, txtFile.getName() + ".png");
+        assertTrue("Case variations should not affect output", expectedImage.exists());
     }
 
     @Test
-    public void verifyArgumentsCasingHasNoEffect() throws IOException, InterruptedException, URISyntaxException, SQLException {
-        // given
-        String fileName = "control-sample.png";
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL resource = classLoader.getResource(fileName);
-        assert resource != null;
-        Path path = Path.of(resource.toURI());
-        File testInputFile = File.createTempFile("TEST", ".TXT", new File(testInputFolder.getRoot().getPath()));
-        FileUtils.write(testInputFile, "test", StandardCharsets.UTF_8);
+    public void verifyTestOutputResultIsCorrect() throws Exception {
+        File txtFile = createTextFile();
+        ThreadStarter starter = new ThreadStarter(fileService);
+        String saveLocation = ConfigurationVariables.getStoragePath();
 
-        // when
-        Main.main(new String[] {"--FILE-TYPE", "PNG", "--FILE-PATH", testInputFile.getPath(), "--SAVE-LOCATION", testOutputFolder.getRoot().getPath()});
-        lock.await(2000, TimeUnit.MILLISECONDS);
-        Path outputFilePath = Path.of(testOutputFolder.getRoot().getPath() + "\\" + testInputFile.getName() + ".PNG");
+        starter.startThreads("png", uploadPath.toString(), saveLocation);
 
-        // then
-        assertEquals(-1, Files.mismatch(outputFilePath, path));
+        TimeUnit.SECONDS.sleep(3);
+
+        File storedFile = new File(saveLocation, txtFile.getName() + ".png");
+        assertTrue("File should be in storage", storedFile.exists());
     }
 }

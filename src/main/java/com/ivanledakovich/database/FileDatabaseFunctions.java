@@ -12,26 +12,34 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileDatabaseFunctions {
+/**
+ * Database implementation of FileRepository.
+ * @author Ivan Ledakovich
+ */
+public class FileDatabaseFunctions implements FileRepository {
 
-    private DatabaseConnectionProperties databaseConnectionProperties;
+    private final DatabaseConnectionProperties dbProps;
 
-    public FileDatabaseFunctions(DatabaseConnectionProperties databaseConnectionProperties) {
-        this.databaseConnectionProperties = databaseConnectionProperties;
+    public FileDatabaseFunctions(DatabaseConnectionProperties dbProps) {
+        this.dbProps = dbProps;
         createTableIfNotExists();
     }
 
-    public Connection connect() {
+    private Connection connect() throws SQLException {
         try {
-            Class.forName(databaseConnectionProperties.getDriver());
-            return DriverManager.getConnection(databaseConnectionProperties.getUrl(), databaseConnectionProperties.getUsername(), databaseConnectionProperties.getPassword());
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            Class.forName(dbProps.getDriver());
+            return DriverManager.getConnection(
+                    dbProps.getUrl(),
+                    dbProps.getUsername(),
+                    dbProps.getPassword()
+            );
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
         }
     }
 
     private void createTableIfNotExists() {
-        String createTableSQL = """
+        String sql = """
             CREATE TABLE IF NOT EXISTS files (
                 id SERIAL PRIMARY KEY,
                 creation_date DATE DEFAULT CURRENT_DATE,
@@ -43,79 +51,96 @@ public class FileDatabaseFunctions {
             )
         """;
 
-        try (Connection con = connect();
-             Statement stmt = con.createStatement()) {
-            stmt.execute(createTableSQL);
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
         } catch (SQLException e) {
-            throw new RuntimeException("Error creating table 'files': " + e.getMessage(), e);
+            throw new RuntimeException("Table creation failed", e);
         }
     }
 
+    @Override
     public void insertAFile(File txtFile, File imageFile) throws IOException, SQLException {
-        try (
-                FileInputStream txtFis = new FileInputStream(txtFile);
-                FileInputStream imageFis = new FileInputStream(imageFile);
-             Connection con = connect();
-             PreparedStatement prtmt = con.prepareStatement("INSERT INTO files(file_name, file_data, image_name, image_type, image_data) VALUES (?, ?, ?, ?, ?)")) {
-            prtmt.setString(1, txtFile.getName());
-            prtmt.setBinaryStream(2, txtFis, (int) txtFile.length());
-            prtmt.setString(3, imageFile.getName());
-            prtmt.setString(4, FilenameUtils.getExtension(imageFile.getName()));
-            prtmt.setBinaryStream(5, imageFis, (int) imageFile.length());
-            prtmt.executeUpdate();
-        }
-        catch (SQLException e) {
-            throw new SQLException(e);
+        String sql = """
+            INSERT INTO files(file_name, file_data, image_name, image_type, image_data) 
+            VALUES (?, ?, ?, ?, ?)
+        """;
+
+        try (FileInputStream txtStream = new FileInputStream(txtFile);
+             FileInputStream imgStream = new FileInputStream(imageFile);
+             Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, txtFile.getName());
+            pstmt.setBinaryStream(2, txtStream, (int) txtFile.length());
+            pstmt.setString(3, imageFile.getName());
+            pstmt.setString(4, FilenameUtils.getExtension(imageFile.getName()));
+            pstmt.setBinaryStream(5, imgStream, (int) imageFile.length());
+
+            pstmt.executeUpdate();
         }
     }
 
+    @Override
     public FileModel getFileByName(String fileName) throws SQLException {
-        try (Connection con = connect();
-             PreparedStatement prtmt = con.prepareStatement("SELECT * FROM files WHERE file_name = ? OR image_name = ?")) {
-            for (int i = 1; i <= 2; i++) {
-                prtmt.setString(i, fileName);
-            }
-            ResultSet rs = prtmt.executeQuery();
-            FileModel file = new FileModel();
+        String sql = "SELECT * FROM files WHERE file_name = ? OR image_name = ?";
 
-            while (rs.next()) {
-                file.setDate(rs.getDate("creation_date"));
-                file.setFileName(rs.getString("file_name"));
-                file.setFileData(rs.getBytes("file_data"));
-                file.setImageName(rs.getString("image_name"));
-                file.setImageType(rs.getString("image_type"));
-                file.setImageData(rs.getBytes("image_data"));
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, fileName);
+            pstmt.setString(2, fileName);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToFileModel(rs);
+                }
+                return null;
             }
-            return file;
         }
     }
 
-    public List<FileModel> getAllFiles() throws SQLException, IOException, URISyntaxException {
-        try (Connection con = connect();
-             PreparedStatement prtmt = con.prepareStatement("SELECT * FROM files");
-             ResultSet rs = prtmt.executeQuery()) {
+    @Override
+    public List<FileModel> getAllFiles() throws SQLException, URISyntaxException, IOException {
+        String sql = "SELECT * FROM files";
+        List<FileModel> files = new ArrayList<>();
 
-            List<FileModel> files = new ArrayList<>();
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                FileModel file = new FileModel();
-                file.setId(rs.getInt("id"));
-                file.setDate(rs.getDate("creation_date"));
-                file.setFileName(rs.getString("file_name"));
-                file.setImageName(rs.getString("image_name"));
-                file.setImageType(rs.getString("image_type"));
-                files.add(file);
+                files.add(mapResultSetToFileModel(rs));
             }
-            return files;
         }
+        return files;
     }
 
+    @Override
     public void deleteFileByName(String fileName) throws SQLException {
-        String query = "DELETE FROM files WHERE file_name = ?";
-        try (Connection con = connect();
-             PreparedStatement stmt = con.prepareStatement(query)) {
-            stmt.setString(1, fileName);
-            stmt.executeUpdate();
+        String sql = "DELETE FROM files WHERE file_name = ?";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, fileName);
+            pstmt.executeUpdate();
         }
+    }
+
+    private FileModel mapResultSetToFileModel(ResultSet rs) throws SQLException {
+        FileModel model = new FileModel();
+        model.setId(rs.getInt("id"));
+        model.setDate(rs.getDate("creation_date"));
+        model.setFileName(rs.getString("file_name"));
+        model.setFileData(rs.getBytes("file_data"));
+        model.setImageName(rs.getString("image_name"));
+        model.setImageType(rs.getString("image_type"));
+        model.setImageData(rs.getBytes("image_data"));
+        return model;
+    }
+
+    Connection getConnection() throws SQLException {
+        return connect();
     }
 }

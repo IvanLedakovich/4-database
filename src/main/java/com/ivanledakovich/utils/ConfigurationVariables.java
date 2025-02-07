@@ -55,4 +55,12 @@ public class ConfigurationVariables {
     private static InputStream getResourceAsStream(String resourceName) {
         return ConfigurationVariables.class.getResourceAsStream(resourceName);
     }
+
+    public static String getStorageType() {
+        return properties.getProperty("STORAGE_TYPE", "database");
+    }
+
+    public static String getStoragePath() {
+        return properties.getProperty("STORAGE_PATH", "./filestorage");
+    }
 }
