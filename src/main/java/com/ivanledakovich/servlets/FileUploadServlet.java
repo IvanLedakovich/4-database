@@ -1,6 +1,5 @@
 package com.ivanledakovich.servlets;
 
-import com.ivanledakovich.logic.FileProcessorStarter;
 import com.ivanledakovich.logic.FileService;
 import com.ivanledakovich.logic.UploadDetail;
 import com.ivanledakovich.logic.UploadedFilesProcessor;
@@ -30,7 +29,7 @@ public class FileUploadServlet extends HttpServlet {
     private static final long MAX_FILE_AGE = 24 * 60 * 60 * 1000;
 
     private final UploadedFilesProcessor uploadedFilesProcessor;
-    private final FileProcessorStarter fileProcessorStarter;
+    private final FileService fileService;
 
     private String getUploadPath() {
         return System.getProperty("java.io.tmpdir") + File.separator + UPLOAD_DIR;
@@ -38,7 +37,7 @@ public class FileUploadServlet extends HttpServlet {
 
     public FileUploadServlet() {
         this.uploadedFilesProcessor = new UploadedFilesProcessor();
-        this.fileProcessorStarter = new FileProcessorStarter(new FileService());
+        this.fileService = new FileService();
     }
 
     private void cleanTempFiles(String uploadPath) {
@@ -82,7 +81,7 @@ public class FileUploadServlet extends HttpServlet {
         dispatcher.forward(request, response);
 
         try {
-            fileProcessorStarter.startThreads(imageExtension, uploadPath, saveLocation);
+            fileService.processTxtFilesIntoImages(imageExtension, uploadPath, saveLocation);
         } catch (Exception e) {
             logger.error(e);
             throw new RuntimeException(e);
