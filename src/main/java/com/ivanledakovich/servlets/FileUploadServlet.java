@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.ivanledakovich.utils.FolderCreator.createFolder;
-
 @WebServlet(description = "Upload File To The Server", urlPatterns = { "/fileUploadServlet" })
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 10,
         maxFileSize = 1024 * 1024 * 30,
@@ -91,5 +89,12 @@ public class FileUploadServlet extends HttpServlet {
         }
 
         response.getWriter().append("Input: " + imageExtension + " " + saveLocation);
+    }
+
+    public static void createFolder(String path) {
+        File folder = new File(path);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
     }
 }
