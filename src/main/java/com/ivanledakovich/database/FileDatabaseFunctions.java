@@ -12,17 +12,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Database implementation of FileRepository.
- * @author Ivan Ledakovich
- */
 public class FileDatabaseFunctions implements FileRepository {
-
     private final DatabaseConnectionProperties dbProps;
 
     public FileDatabaseFunctions(DatabaseConnectionProperties dbProps) {
         this.dbProps = dbProps;
         createTableIfNotExists();
+        addMissingColumnsIfNotPresent();
     }
 
     private Connection connect() throws SQLException {
@@ -43,9 +39,9 @@ public class FileDatabaseFunctions implements FileRepository {
             CREATE TABLE IF NOT EXISTS files (
                 id SERIAL PRIMARY KEY,
                 creation_date DATE DEFAULT CURRENT_DATE,
-                file_name VARCHAR(255) UNIQUE NOT NULL,
+                file_name VARCHAR(255) NOT NULL,
                 file_data BYTEA NOT NULL,
-                image_name VARCHAR(255) UNIQUE NOT NULL,
+                image_name VARCHAR(255) NOT NULL,
                 image_type VARCHAR(255) NOT NULL,
                 image_data BYTEA NOT NULL
             )
@@ -56,6 +52,23 @@ public class FileDatabaseFunctions implements FileRepository {
             stmt.execute(sql);
         } catch (SQLException e) {
             throw new RuntimeException("Table creation failed", e);
+        }
+    }
+
+    private void addMissingColumnsIfNotPresent() {
+        String[] columnsToAdd = {
+                "ALTER TABLE files ADD COLUMN IF NOT EXISTS image_name VARCHAR(255) UNIQUE NOT NULL",
+                "ALTER TABLE files ADD COLUMN IF NOT EXISTS image_type VARCHAR(255) NOT NULL",
+                "ALTER TABLE files ADD COLUMN IF NOT EXISTS image_data BYTEA NOT NULL"
+        };
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            for (String sql : columnsToAdd) {
+                stmt.executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Column addition failed", e);
         }
     }
 
