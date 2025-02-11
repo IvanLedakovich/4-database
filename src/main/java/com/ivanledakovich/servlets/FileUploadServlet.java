@@ -72,8 +72,6 @@ public class FileUploadServlet extends HttpServlet {
                 ? ConfigurationVariables.getStoragePath()
                 : request.getParameter("saveLocation");
 
-        String applicationPath = getServletContext().getRealPath("");
-
         createFolder(uploadPath);
         createFolder(saveLocation);
 

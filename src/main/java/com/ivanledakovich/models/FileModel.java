@@ -47,10 +47,6 @@ public class FileModel {
         return fileData;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public void setImageData(byte[] imageData) {
         System.out.println(imageData.length);
         this.imageData = imageData;

@@ -152,8 +152,4 @@ public class FileDatabaseFunctions implements FileRepository {
         model.setImageData(rs.getBytes("image_data"));
         return model;
     }
-
-    Connection getConnection() throws SQLException {
-        return connect();
-    }
 }

@@ -21,10 +21,6 @@ public class FileProcessor implements Callable<Integer> {
         this.textFilePath = textFilePath;
     }
 
-    public void run() throws Exception {
-        call();
-    }
-
     @Override
     public Integer call() throws Exception {
         try {
@@ -46,12 +42,5 @@ public class FileProcessor implements Callable<Integer> {
             ErrorNotifier.fileCouldNotBeWritten();
         }
         return 0;
-    }
-
-    public void run(String imageFileType, String imageSaveLocation, String textFilePath) throws Exception {
-        this.imageFileType = imageFileType;
-        this.imageSaveLocation = imageSaveLocation;
-        this.textFilePath = textFilePath;
-        call();
     }
 }

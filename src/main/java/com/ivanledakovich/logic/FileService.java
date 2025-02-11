@@ -40,8 +40,4 @@ public class FileService {
     public FileModel getFile(String fileName) throws SQLException {
         return repository.getFileByName(fileName);
     }
-
-    public void deleteFile(String fileName) throws SQLException {
-        repository.deleteFileByName(fileName);
-    }
 }

@@ -8,13 +8,6 @@ public class DatabaseConnectionProperties {
 
         public DatabaseConnectionProperties() {}
 
-        public DatabaseConnectionProperties(String driver, String url, String username, String password) {
-            this.driver = driver;
-            this.url = url;
-            this.username = username;
-            this.password = password;
-        }
-
         public String getUrl() {
             return url;
         }

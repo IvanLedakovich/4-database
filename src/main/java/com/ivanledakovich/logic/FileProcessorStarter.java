@@ -25,7 +25,6 @@ public class FileProcessorStarter {
         File txtFilesDir = new File(uploadPath);
         File imageFilesDir = new File(convertedPath);
         File[] txtFileDirectoryListing = txtFilesDir.listFiles();
-        File[] imageFileDirectoryListing = imageFilesDir.listFiles();
         if (txtFileDirectoryListing != null) {
             for (File txtFile : txtFileDirectoryListing) {
                 Future<Integer> test = executor.submit(new FileProcessor(imageExtension, convertedPath, txtFile.getAbsolutePath()));
