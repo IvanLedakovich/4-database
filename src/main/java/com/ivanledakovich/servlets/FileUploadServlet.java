@@ -1,10 +1,11 @@
 package com.ivanledakovich.servlets;
 
+import com.ivanledakovich.logic.FileProcessorStarter;
 import com.ivanledakovich.logic.FileService;
-import com.ivanledakovich.logic.ThreadStarter;
 import com.ivanledakovich.logic.UploadDetail;
 import com.ivanledakovich.logic.UploadedFilesProcessor;
 import com.ivanledakovich.utils.ConfigurationVariables;
+import org.apache.log4j.Logger;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -16,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 import static com.ivanledakovich.utils.FolderCreator.createFolder;
@@ -26,11 +26,13 @@ import static com.ivanledakovich.utils.FolderCreator.createFolder;
         maxFileSize = 1024 * 1024 * 30,
         maxRequestSize = 1024 * 1024 * 50)
 public class FileUploadServlet extends HttpServlet {
+    private static final Logger logger = Logger.getLogger(FileUploadServlet.class);
+
     private static final String UPLOAD_DIR = "uploadedFiles";
     private static final long MAX_FILE_AGE = 24 * 60 * 60 * 1000;
 
     private final UploadedFilesProcessor uploadedFilesProcessor;
-    private final ThreadStarter threadStarter;
+    private final FileProcessorStarter fileProcessorStarter;
 
     private String getUploadPath() {
         return System.getProperty("java.io.tmpdir") + File.separator + UPLOAD_DIR;
@@ -38,12 +40,7 @@ public class FileUploadServlet extends HttpServlet {
 
     public FileUploadServlet() {
         this.uploadedFilesProcessor = new UploadedFilesProcessor();
-        this.threadStarter = new ThreadStarter(new FileService());
-    }
-
-    public FileUploadServlet(UploadedFilesProcessor uploadedFilesProcessor, ThreadStarter threadStarter) {
-        this.uploadedFilesProcessor = uploadedFilesProcessor;
-        this.threadStarter = threadStarter;
+        this.fileProcessorStarter = new FileProcessorStarter(new FileService());
     }
 
     private void cleanTempFiles(String uploadPath) {
@@ -89,8 +86,9 @@ public class FileUploadServlet extends HttpServlet {
         dispatcher.forward(request, response);
 
         try {
-            threadStarter.startThreads(imageExtension, uploadPath, saveLocation);
-        } catch (SQLException e) {
+            fileProcessorStarter.startThreads(imageExtension, uploadPath, saveLocation);
+        } catch (Exception e) {
+            logger.error(e);
             throw new RuntimeException(e);
         }
 

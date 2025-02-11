@@ -42,8 +42,6 @@ public class FileSystemRepository implements FileRepository {
     public void insertAFile(File txtFile, File imageFile) throws IOException, SQLException {
         Path targetTxt = storagePath.resolve(txtFile.getName());
         Path targetImg = storagePath.resolve(imageFile.getName());
-        Files.copy(txtFile.toPath(), targetTxt);
-        Files.copy(imageFile.toPath(), targetImg);
 
         FileModel model = new FileModel();
         model.setDate(Date.from(Instant.now()));
