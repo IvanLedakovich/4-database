@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 @WebServlet("/downloadServlet")
 public class FileDownloadServlet extends HttpServlet {
-    private FileService fileService = new FileService();
+    private final FileService fileService = new FileService();
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String fileName = request.getParameter("fileName");
