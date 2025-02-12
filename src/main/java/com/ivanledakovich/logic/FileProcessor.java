@@ -30,17 +30,19 @@ public class FileProcessor implements Callable<Integer> {
             String data = FileReader.readFile(textFilePath);
             BufferedImage image = ImageCreator.createImage(data);
 
-            File tempImage = new File(System.getProperty("java.io.tmpdir"), imageName);
-            ImageIO.write(image, imageFileType, tempImage);
+            // Ensure output directory exists
+            new File(imageSaveLocation).mkdirs();
+
+            File tempImage = new File(imageSaveLocation, imageName);
+            if (!ImageIO.write(image, imageFileType, tempImage)) {
+                throw new IOException("No appropriate writer found for format: " + imageFileType);
+            }
 
             fileService.insertFile(tempFile, tempImage);
-
-            tempFile.delete();
-            tempImage.delete();
-
+            return 0;
         } catch (IOException | SQLException e) {
             ErrorNotifier.fileCouldNotBeWritten();
+            throw e; // Re-throw to fail the test
         }
-        return 0;
     }
 }

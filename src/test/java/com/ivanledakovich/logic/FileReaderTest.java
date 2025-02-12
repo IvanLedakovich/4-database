@@ -1,36 +1,26 @@
-//package com.ivanledakovich.logic;
-//
-//import org.junit.Test;
-//
-//import java.net.URISyntaxException;
-//import java.net.URL;
-//
-//import static org.junit.Assert.assertEquals;
-//import static org.junit.Assert.assertThrows;
-//
-//public class FileReaderTest {
-//
-//    @Test
-//    public void verifyExceptionIsThrown() {
-//        assertThrows(RuntimeException.class, () -> {
-//            FileReader.readFile("");
-//        });
-//    }
-//
-//    @Test
-//    public void verifyTheFilesAreReadCorrectly() throws URISyntaxException {
-//    // given
-//    String data = "";
-//    String fileName = "test.txt";
-//    ClassLoader classLoader = getClass().getClassLoader();
-//    URL resource = classLoader.getResource(fileName);
-//    assert resource != null;
-//    String path = resource.getPath();
-//
-//    // when
-//    data = FileReader.readFile(path);
-//
-//    // then
-//    assertEquals(data, "test .txt file");
-//    }
-//}
+package com.ivanledakovich.logic;
+
+import org.junit.Test;
+
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+
+import static org.junit.Assert.assertEquals;
+
+public class FileReaderTest {
+
+    @Test(expected = RuntimeException.class)
+    public void readFile_WithInvalidPath_ThrowsException() {
+        FileReader.readFile("invalid/path.txt");
+    }
+
+    @Test
+    public void readFile_WithValidFile_ReturnsContent() throws URISyntaxException {
+        String path = Paths.get(
+                getClass().getClassLoader().getResource("test.txt").toURI()
+        ).toString();
+
+        String content = FileReader.readFile(path);
+        assertEquals("test", content.trim());
+    }
+}

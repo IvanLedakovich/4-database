@@ -10,7 +10,7 @@ import java.util.Properties;
 public class ConfigurationVariables {
 
     private static final Logger logger = Logger.getLogger(ConfigurationVariables.class);
-    private static final Properties properties = new Properties();
+    private static Properties properties = new Properties();
 
     static {
         loadProperties();

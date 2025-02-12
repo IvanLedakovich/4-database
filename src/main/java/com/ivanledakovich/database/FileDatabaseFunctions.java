@@ -39,9 +39,9 @@ public class FileDatabaseFunctions implements FileRepository {
             CREATE TABLE IF NOT EXISTS files (
                 id SERIAL PRIMARY KEY,
                 creation_date DATE DEFAULT CURRENT_DATE,
-                file_name VARCHAR(255) NOT NULL,
+                file_name VARCHAR(255) UNIQUE NOT NULL,
                 file_data BYTEA NOT NULL,
-                image_name VARCHAR(255) NOT NULL,
+                image_name VARCHAR(255) UNIQUE NOT NULL,
                 image_type VARCHAR(255) NOT NULL,
                 image_data BYTEA NOT NULL
             )
